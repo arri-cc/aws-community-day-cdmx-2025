@@ -266,13 +266,9 @@ Este proyecto está diseñado como demostración, pero las contribuciones son bi
 ## 📧 **Contacto y Presentación**
 
 **AWS Community Day México 2025**
-- **Evento**: [AWS Community Day CDMX](https://aws.amazon.com/events/)
-- **Track**: AI/ML + Developer Tools
-- **Demo Live**: Cline + Chrome Extension + AWS en vivo
-
-**Síguenos para más demos de Cline:**
+- **Evento**: [AWS Community Day CDMX](https://day.awscommunity.mx/)
 - 🐙 GitHub: [@arri-cc](https://github.com/arri-cc)
-- 🔗 LinkedIn: [AWS Community Day México](https://linkedin.com/company/aws-community-day-mexico)
+- 🔗 LinkedIn: [Arri Rucker](https://linkedin.com/in/enyeto)
 
 ---
 

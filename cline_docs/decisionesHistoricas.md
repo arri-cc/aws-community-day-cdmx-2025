@@ -98,8 +98,32 @@
 - ⚠️ Costos pueden ser altos con clusters grandes
 - ⚠️ Backup y disaster recovery requieren configuración manual
 
-## Decisiones de Desarrollo
+## Decisiones Arquitectónicas del Frontend
 
+### 🏗️ RFC Arquitectura Frontend por Fases
+**Decisión**: Implementación por fases de extensión Chrome con Web Components
+**Fecha**: 14 de junio, 2025
+**RFC Issue**: [#1](https://github.com/arri-cc/aws-community-day-cdmx-2025/issues/1)
+**Justificación**:
+- **Enfoque por Fases**: Permite desarrollo incremental y demos tempranos
+- **Chrome Extension Universal**: Funciona con todas las plataformas de reuniones
+- **Web Components**: Arquitectura modular sin frameworks pesados
+- **Localización Prioritaria**: Español mexicano como idioma principal
+
+**Fases Definidas**:
+1. **Fase 1**: Estructura Base (Manifest v3, Service Worker, Content Scripts)
+2. **Fase 2**: Captura de Audio (Detección multiplataforma, MediaStream, WebSocket)
+3. **Fase 3**: UI Interactiva (Web Components, animaciones, localización)
+4. **Fase 4**: Demos (Modo presentación, casos de uso, AWS Community Day)
+
+**Issues de Implementación**: #2, #3, #4, #5
+
+**Advertencias**:
+- ⚠️ Timeline apretado de 12 semanas para AWS Community Day
+- ⚠️ Complejidad de coordinación entre 4 fases
+- ⚠️ Dependencias críticas entre fases
+
+### 💻 Frontend - Tecnología de UI
 ### 💻 Frontend - Tecnología de UI
 
 #### Vanilla JS + Web Components vs React/Vue
@@ -115,6 +139,35 @@
 - ⚠️ Desarrollo más lento que con frameworks
 - ⚠️ Necesidad de implementar patrones manualmente
 - ⚠️ Curva de aprendizaje para Web Components
+
+#### Sistema de Web Components Modulares
+**Decisión**: Arquitectura basada en Web Components nativos con clase BaseComponent
+**Fecha**: 14 de junio, 2025
+**Justificación**:
+- **Encapsulación**: Cada componente es independiente y reutilizable
+- **Performance**: Sin overhead de frameworks en ambiente restringido
+- **Estándares**: Uso de APIs nativas del navegador
+- **Escalabilidad**: Fácil extensión y mantenimiento
+
+**Componentes Principales**:
+- BaseComponent → TranscriptionFeed, InsightCard, SearchPanel, EmailDraft, MeetingControls
+- Cada componente con estado propio y lifecycle management
+- Sistema de eventos custom para comunicación entre componentes
+
+#### Sistema de Animaciones CSS3 + JavaScript
+**Decisión**: Motor de animaciones personalizado con CSS3 y JavaScript triggers
+**Fecha**: 14 de junio, 2025
+**Justificación**:
+- **Performance**: 60 FPS garantizado para demos en AWS Community Day
+- **Control**: Timing preciso para insights emergentes
+- **Flexibilidad**: Animaciones adaptables según contexto
+- **Profesionalismo**: Efectos visuales llamativos pero apropiados
+
+**Características**:
+- Insights emergen con animaciones fluidas
+- Transiciones entre estados de la aplicación
+- Indicadores visuales para procesamiento IA en tiempo real
+- Modo demo con animaciones controladas manualmente
 
 #### TypeScript vs JavaScript
 **Decisión**: TypeScript
@@ -143,10 +196,24 @@
 - **Diferenciación**: Pocos competidores con enfoque específico en español
 - **Precisión de IA**: Mejor performance en contexto cultural correcto
 
+**Implementación Frontend**:
+- Chrome i18n API para localización nativa
+- Archivos _locales/es/messages.json y _locales/en/messages.json
+- Terminología de ventas B2B adaptada para México
+- Formatos culturales (fechas, números, moneda en pesos)
+- Validación con usuarios nativos mexicanos
+
+**Casos de Uso Localizados**:
+- "¿Su plataforma soporta clusters de Kubernetes con controles de auditoría?"
+- "¿Cuáles son los costos típicos para una implementación mediana?"
+- Emails de seguimiento en estilo formal mexicano
+- Insights categorizados con terminología familiar
+
 **Advertencias**:
 - ⚠️ Limitación de mercado inicial
 - ⚠️ Modelos de IA pueden tener bias hacia inglés
 - ⚠️ Documentación técnica principalmente en inglés
+- ⚠️ Necesidad de validación cultural constante
 
 ### 📝 Documentación Bilingüe
 **Decisión**: Documentación técnica en español, código en inglés
@@ -194,6 +261,48 @@
 - ⚠️ Imposibilidad de reprocessar audio histórico
 - ⚠️ Debugging más difícil sin datos históricos
 - ⚠️ Features de análisis histórico limitadas
+
+## Decisiones de Demostración
+
+### 🎪 Estrategia para AWS Community Day 2025
+
+#### Modo Demo Interactivo
+**Decisión**: Sistema de demos controlados con datos simulados
+**Fecha**: 14 de junio, 2025
+**Justificación**:
+- **Confiabilidad**: Demos no dependen de conexión AWS en vivo
+- **Control**: Timing perfecto para narrativa de presentación
+- **Profesionalismo**: Cero riesgo de fallos técnicos durante evento
+- **Impacto**: Casos de uso específicos para audiencia mexicana
+
+**Características del Sistema Demo**:
+- 5 scenarios predefinidos con datos realistas
+- Panel de control oculto para presenter
+- Triggers manuales para insights específicos
+- Reset instantáneo entre demostraciones
+- Fallbacks para conexión limitada de internet
+
+**Scenarios Específicos**:
+1. Consulta Kubernetes → Insights sobre EKS y seguridad
+2. Pricing y arquitectura → Calculator y referencias de costos
+3. Casos de estudio → Búsqueda vectorial de documentos
+4. Follow-up → Generación automática de email en español
+5. Documentación técnica → Search semántico con ranking visual
+
+#### Optimización para Presentación
+**Decisión**: UI adaptada específicamente para proyección y audiencia grande
+**Fecha**: 14 de junio, 2025
+**Justificación**:
+- **Legibilidad**: Fonts grandes visibles desde 5+ metros
+- **Contraste**: Colores optimizados para proyectores
+- **Performance**: 60 FPS garantizado durante demos
+- **Backup**: Múltiples planes de contingencia
+
+**Implementación**:
+- Modo pantalla completa sin distracciones
+- presentation.css con estilos específicos para proyección
+- Animaciones optimizadas para timing de presentación
+- Backup completo en laptop secundario
 
 ## Lecciones Aprendidas
 
@@ -253,12 +362,33 @@
    - Network bandwidth para streaming audio
    - Browser audio capture limitations
 
+3. **Frontend Performance**:
+   - Memory usage durante sesiones largas de reunión
+   - Animation performance en hardware limitado
+   - Component lifecycle management para evitar leaks
+
 ### 📊 Métricas Críticas para Monitorear
 
 1. **Latencia End-to-End**: < 2 segundos objetivo
 2. **Error Rate**: < 1% para WebSocket connections
 3. **Precisión Transcripción**: > 90% para español mexicano
 4. **Costo por Sesión**: Tracking para optimización
+5. **Frontend Performance**: 60 FPS para animaciones, < 200ms para componentes
+6. **Demo Success Rate**: 100% durante AWS Community Day
+
+### 🎯 Implementación por Fases - Lecciones
+
+#### Gestión de Dependencias Entre Fases
+- Cada fase debe completarse antes de iniciar la siguiente
+- Testing continuo desde Fase 1 para validar integración
+- Modo demo desarrollado en paralelo desde Fase 3
+- Documentación actualizada al completar cada fase
+
+#### Coordinación Frontend-Backend
+- WebSocket protocol definido temprano y mantenido estable
+- Mock services para desarrollo frontend independiente
+- Integration testing desde Fase 2 para validar conectividad
+- Performance testing en cada fase para mantener objetivos
 
 ---
 
