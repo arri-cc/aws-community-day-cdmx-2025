@@ -1,0 +1,110 @@
+{
+  "repository": {
+    "owner": "arri-cc",
+    "repo": "aws-community-day-cdmx-2025",
+    "projectId": 1
+  },
+  "issueTypes": {
+    "feat": {
+      "template": "enhancement",
+      "titlePrefix": "feat: ",
+      "labels": ["enhancement"],
+      "commitType": "feat"
+    },
+    "fix": {
+      "template": "bug_report", 
+      "titlePrefix": "fix: ",
+      "labels": ["bug"],
+      "commitType": "fix"
+    },
+    "chore": {
+      "template": "chore",
+      "titlePrefix": "chore: ", 
+      "labels": ["chore"],
+      "commitType": "chore"
+    },
+    "rfc": {
+      "template": "rfc",
+      "titlePrefix": "rfc: ",
+      "labels": ["rfc", "proposal"],
+      "commitType": "docs",
+      "hasSubissues": true
+    }
+  },
+  "milestones": [
+    {
+      "number": 1,
+      "title": "Arquitectura de Extensión Chrome",
+      "description": "Diseñar e implementar la estructura base de la extensión Chrome con Manifest v3, incluyendo content scripts, background service worker, y configuración de permisos para captura de audio."
+    },
+    {
+      "number": 2,
+      "title": "Backend AWS Serverless",
+      "description": "Implementar la infraestructura AWS serverless con API Gateway WebSocket, Lambda functions, y integración con Amazon Bedrock para procesamiento de IA en tiempo real."
+    },
+    {
+      "number": 3,
+      "title": "Integración de Reconocimiento de Voz",
+      "description": "Implementar captura de audio en tiempo real desde reuniones del navegador y integración con Amazon Transcribe para conversión de voz a texto en español."
+    },
+    {
+      "number": 4,
+      "title": "Motor de IA Conversacional",
+      "description": "Desarrollar el sistema de análisis de conversaciones usando Amazon Bedrock (Claude) para extraer insights, generar recomendaciones y crear borradores de emails de seguimiento."
+    },
+    {
+      "number": 5,
+      "title": "Sistema de Búsqueda Vectorial",
+      "description": "Implementar Amazon OpenSearch para búsqueda semántica en base de conocimientos de casos de estudio, documentos de productos y materiales de ventas."
+    },
+    {
+      "number": 6,
+      "title": "Interfaz de Usuario en Tiempo Real",
+      "description": "Crear el panel lateral de la extensión con animaciones de insights emergentes, transcripción en vivo y recomendaciones contextuales en español."
+    },
+    {
+      "number": 7,
+      "title": "Localización en Español",
+      "description": "Implementar soporte completo para español mexicano en la interfaz, prompts de IA, y procesamiento de conversaciones de ventas."
+    },
+    {
+      "number": 8,
+      "title": "Mockups y Prototipos Interactivos",
+      "description": "Desarrollar demos interactivos que muestren el asistente funcionando junto a reuniones de video con insights animados apareciendo en tiempo real."
+    },
+    {
+      "number": 9,
+      "title": "Preparación para AWS Community Day",
+      "description": "Preparar presentación, demos en vivo y materiales para AWS Community Day México 2025, incluyendo casos de uso y arquitectura técnica."
+    },
+    {
+      "number": 10,
+      "title": "Optimización y Rendimiento",
+      "description": "Optimizar el rendimiento de la extensión, reducir latencia en procesamiento de IA y asegurar escalabilidad del backend AWS."
+    }
+  ],
+  "projectCommands": {
+    "extension": {
+      "build": "npm run build",
+      "dev": "npm run dev",
+      "package": "npm run package",
+      "install": "npm install"
+    },
+    "aws": {
+      "deploy": "serverless deploy",
+      "local": "serverless offline",
+      "logs": "serverless logs",
+      "remove": "serverless remove"
+    },
+    "demo": {
+      "start": "npm run demo",
+      "build": "npm run build:demo",
+      "serve": "npm run serve:demo"
+    },
+    "test": {
+      "unit": "npm test",
+      "e2e": "npm run test:e2e",
+      "extension": "npm run test:extension"
+    }
+  }
+}

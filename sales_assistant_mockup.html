@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Sales Assistant - Video Meeting</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            overflow: hidden;
+        }
+
+        .meeting-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            height: 100vh;
+        }
+
+        .video-area {
+            background: #000;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 16px;
+        }
+
+        .video-participant {
+            background: #2a2a2a;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+        }
+
+        .video-participant.speaking {
+            box-shadow: 0 0 0 3px #10b981;
+            animation: pulse-speaking 1.5s infinite;
+        }
+
+        @keyframes pulse-speaking {
+            0%, 100% { box-shadow: 0 0 0 3px #10b981; }
+            50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.3); }
+        }
+
+        .participant-name {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .participant-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .avatar-sarah { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .avatar-alex { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .avatar-prospect { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .avatar-team { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+
+        .meeting-controls {
+            background: #2a2a2a;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            border-top: 1px solid #3a3a3a;
+        }
+
+        .control-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-btn.mute { background: #ef4444; }
+        .control-btn.video { background: #3b82f6; }
+        .control-btn.end { background: #dc2626; }
+
+        .assistant-panel {
+            background: #f8fafc;
+            color: #1a202c;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #e2e8f0;
+        }
+
+        .assistant-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .assistant-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .insights-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .live-transcript {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .transcript-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .transcript-text {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .insight-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            transform: translateX(100%);
+            opacity: 0;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .insight-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .insight-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .insight-type {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .insight-content {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .insight-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #2563eb;
+        }
+
+        .action-btn.secondary {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .confidence-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #ecfdf5;
+            color: #065f46;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .search-indicator {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .search-indicator.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-text {
+            font-size: 14px;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 2px;
+        }
+
+        .loading-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #f59e0b;
+            animation: loadingDot 1.4s infinite both;
+        }
+
+        .loading-dot:nth-child(1) { animation-delay: 0s; }
+        .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes loadingDot {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
+
+        .floating-insight {
+            position: fixed;
+            top: 20px;
+            right: 420px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid #e2e8f0;
+            max-width: 300px;
+            transform: translateY(-100px);
+            opacity: 0;
+            z-index: 1000;
+        }
+
+        .floating-insight.show {
+            animation: floatIn 0.5s ease-out forwards;
+        }
+
+        @keyframes floatIn {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .demo-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .demo-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .demo-btn:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="meeting-container">
+        <div class="video-area">
+            <div class="video-grid">
+                <div class="video-participant speaking">
+                    <div class="participant-avatar avatar-prospect">MP</div>
+                    <div class="participant-name">Mike Peterson (Prospect)</div>
+                </div>
+                <div class="video-participant">
+                    <div class="participant-avatar avatar-sarah">SJ</div>
+                    <div class="participant-name">Sarah Johnson (Sales Rep)</div>
+                </div>
+                <div class="video-participant">
+                    <div class="participant-avatar avatar-alex">AL</div>
+                    <div class="participant-name">Alex Lee (Solutions Engineer)</div>
+                </div>
+                <div class="video-participant">
+                    <div class="participant-avatar avatar-team">TR</div>
+                    <div class="participant-name">Tech Lead (Remote)</div>
+                </div>
+            </div>
+            
+            <div class="meeting-controls">
+                <button class="control-btn mute">🎤</button>
+                <button class="control-btn video">📹</button>
+                <button class="control-btn end">📞</button>
+            </div>
+        </div>
+
+        <div class="assistant-panel">
+            <div class="assistant-header">
+                <h3>Live Sales Assistant</h3>
+                <div class="assistant-status">
+                    <div class="status-dot"></div>
+                    <span>Listening & Analyzing</span>
+                </div>
+            </div>
+
+            <div class="insights-container">
+                <div class="live-transcript">
+                    <div class="transcript-label">Live Transcript</div>
+                    <div class="transcript-text" id="transcript">
+                        "Do you support vendor-managed Kubernetes clusters with strict audit controls for compliance?"
+                    </div>
+                </div>
+
+                <div class="search-indicator" id="searchIndicator">
+                    <div class="search-text">
+                        🔍 Searching knowledge base
+                        <div class="loading-dots">
+                            <div class="loading-dot"></div>
+                            <div class="loading-dot"></div>
+                            <div class="loading-dot"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="insightsContainer">
+                    <!-- Insights will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="floating-insight" id="floatingInsight">
+        <div class="insight-header">
+            <div class="insight-icon" style="background: #10b981;">📋</div>
+            <div class="insight-type">Case Study Match</div>
+            <div class="confidence-badge">
+                ✅ 94% match
+            </div>
+        </div>
+        <div class="insight-content">
+            <strong>Perfect match found:</strong> TechCorp implementation with shared audit control in multi-tenant clusters
+        </div>
+    </div>
+
+    <div class="demo-controls">
+        <button class="demo-btn" onclick="simulateNewQuestion()">New Question</button>
+        <button class="demo-btn" onclick="simulateInsight()">Trigger Insight</button>
+        <button class="demo-btn" onclick="reset()">Reset Demo</button>
+    </div>
+
+    <script>
+        let insightCounter = 0;
+        
+        const questions = [
+            "Do you support vendor-managed Kubernetes clusters with strict audit controls for compliance?",
+            "What's your pricing model for enterprise deployments over 10,000 users?",
+            "How do you handle GDPR compliance for our European operations?",
+            "Can your platform integrate with our existing Salesforce and HubSpot setup?",
+            "What kind of uptime SLA can you guarantee for mission-critical workloads?"
+        ];
+
+        const insights = [
+            {
+                type: "Case Study Match",
+                icon: "📋",
+                color: "#10b981",
+                content: "<strong>Perfect match found:</strong> TechCorp implementation with shared audit control in multi-tenant clusters. 99.2% uptime, 40% cost reduction.",
+                confidence: "94% match",
+                actions: ["Share Case Study", "Schedule Tech Deep-dive"]
+            },
+            {
+                type: "Competitor Intel",
+                icon: "🎯",
+                color: "#f59e0b",
+                content: "<strong>Competitor mention detected:</strong> Prospect evaluated Azure last month. Use positioning deck slide 12-15 for differentiation.",
+                confidence: "High priority",
+                actions: ["Load Competitive Deck", "Prep Battle Card"]
+            },
+            {
+                type: "Pricing Insight",
+                icon: "💰",
+                color: "#8b5cf6",
+                content: "<strong>Budget signal:</strong> Similar companies typically budget $50K-120K for this use case. Suggest mid-tier package.",
+                confidence: "87% confidence",
+                actions: ["Generate Quote", "Schedule Pricing Call"]
+            },
+            {
+                type: "Technical Match",
+                icon: "⚙️",
+                color: "#06b6d4",
+                content: "<strong>Integration requirement:</strong> Found 3 similar implementations with Salesforce + HubSpot. Est. 2-week implementation.",
+                confidence: "92% match",
+                actions: ["Share Architecture", "Connect with Solutions"]
+            },
+            {
+                type: "Follow-up Draft",
+                icon: "✉️",
+                color: "#ef4444",
+                content: "<strong>Email ready:</strong> Compliance documentation + case study + next steps draft prepared for Mike Peterson.",
+                confidence: "Ready to send",
+                actions: ["Review Email", "Send Now"]
+            }
+        ];
+
+        function addInsight(insight) {
+            const container = document.getElementById('insightsContainer');
+            const card = document.createElement('div');
+            card.className = 'insight-card';
+            card.style.animationDelay = `${insightCounter * 0.1}s`;
+            
+            card.innerHTML = `
+                <div class="insight-header">
+                    <div class="insight-icon" style="background: ${insight.color};">${insight.icon}</div>
+                    <div class="insight-type">${insight.type}</div>
+                    <div class="confidence-badge">
+                        ✅ ${insight.confidence}
+                    </div>
+                </div>
+                <div class="insight-content">${insight.content}</div>
+                <div class="insight-actions">
+                    ${insight.actions.map(action => 
+                        `<button class="action-btn">${action}</button>`
+                    ).join('')}
+                </div>
+            `;
+            
+            container.appendChild(card);
+            insightCounter++;
+        }
+
+        function showFloatingInsight() {
+            const floating = document.getElementById('floatingInsight');
+            floating.classList.add('show');
+            
+            setTimeout(() => {
+                floating.classList.remove('show');
+            }, 3000);
+        }
+
+        function showSearchIndicator() {
+            const indicator = document.getElementById('searchIndicator');
+            indicator.classList.add('active');
+            
+            setTimeout(() => {
+                indicator.classList.remove('active');
+            }, 2000);
+        }
+
+        function updateTranscript(text) {
+            document.getElementById('transcript').textContent = text;
+        }
+
+        function simulateNewQuestion() {
+            const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+            updateTranscript(randomQuestion);
+            
+            // Show search indicator
+            showSearchIndicator();
+            
+            // Show floating insight after delay
+            setTimeout(() => {
+                showFloatingInsight();
+            }, 1500);
+            
+            // Add insight after search
+            setTimeout(() => {
+                const randomInsight = insights[Math.floor(Math.random() * insights.length)];
+                addInsight(randomInsight);
+            }, 2500);
+        }
+
+        function simulateInsight() {
+            const randomInsight = insights[Math.floor(Math.random() * insights.length)];
+            addInsight(randomInsight);
+        }
+
+        function reset() {
+            document.getElementById('insightsContainer').innerHTML = '';
+            document.getElementById('transcript').textContent = '"Do you support vendor-managed Kubernetes clusters with strict audit controls for compliance?"';
+            insightCounter = 0;
+        }
+
+        // Auto-demo: simulate the workflow
+        setTimeout(() => {
+            showSearchIndicator();
+        }, 2000);
+
+        setTimeout(() => {
+            showFloatingInsight();
+        }, 3500);
+
+        setTimeout(() => {
+            addInsight(insights[0]);
+        }, 4500);
+
+        setTimeout(() => {
+            addInsight(insights[1]);
+        }, 6000);
+
+        setTimeout(() => {
+            addInsight(insights[4]);
+        }, 8000);
+    </script>
+</body>
+</html>
